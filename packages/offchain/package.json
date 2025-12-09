@@ -1,0 +1,39 @@
+{
+  "name": "off-chain",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src/**/*.ts"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --minify --format esm,cjs --dts --clean --tsconfig tsconfig.build.json",
+    "type-check": "tsc --noEmit",
+    "lint": "pnpm eslint .",
+    "format": "pnpm prettier --write src/ tests/",
+    "format:check": "pnpm prettier --check src/ tests/",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.1",
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.1",
+    "@vitest/eslint-plugin": "^1.5.0",
+    "eslint": "^9.39.1",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.47.0",
+    "vitest": "^4.0.12"
+  },
+  "dependencies": {}
+}

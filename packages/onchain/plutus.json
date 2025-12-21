@@ -1,0 +1,155 @@
+{
+  "preamble": {
+    "title": "IndigoProtocol/latest-price-feed",
+    "description": "Latest price feeds via Orcfax",
+    "version": "0.0.0",
+    "plutusVersion": "v3",
+    "compiler": {
+      "name": "Aiken",
+      "version": "v1.1.21+42babe5"
+    },
+    "license": "Apache-2.0"
+  },
+  "validators": [
+    {
+      "title": "placeholder.placeholder.mint",
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "compiledCode": "5902c601010029800aba2aba1aba0aab9faab9eaab9dab9a4888888966002646465300130053754003370e90004c024009222598009801001c4c98dd7180618049baa0048992cc004c0040122646644b30013006300c37540031323298009bac301230130019809000cdd5980900124446644660040040024464b3001300e0018991919800800804112cc00400629422b30013371e6eb8c06c00400e2946266004004603800280b10191bae3018301537540051598009806000c4c8cc004004dd6180c980b1baa0032259800800c528c5660026600a00a6034003133002002301b0018a50405480c22b30013370e9002000c4c8cc004004dd6180c980b1baa0032259800800c52845660026600a00a603400314a3133002002301b001405480c22b30013370e9003000c4c8cdc49bad3019001323300100137586034603600444b30010018a400113322598009980400400144cdc0000a400510014060603600266004004603800280c8c054dd5001456600266e1d200800189919912cc004c03cc05cdd50014566002601e602e6ea8c06cc07000e266e24dd6980d980c1baa002001899b88375a603660306ea80080050164528202c3019001375a6032602c6ea800cc054dd5180c180c980a9baa0058acc004cdc3a40140031323322598009807980b9baa0028acc004c03cc05cdd5180d980e001c4cdc48009bad301b301837540051337100026eb4c06cc060dd5001202c8a50405860320026eb4c064c058dd5001980a9baa30183015375400b13232330010010062259800800c528456600266ebc00cc05cc06c0062946266004004603800280b101919ba548008cc05cc060c054dd500125eb810132026404c8099013202630133754002602a60246ea80186024002602260226022602260226022601a6ea8c04002a2c8058c038004c038c03c004c028dd5002c590081b87480090070c020c024004c020004c00cdd5004452689b2b200201",
+      "hash": "d110548ab5ed759148abbece19b2f8c1a4a7d47529442be94c970202"
+    },
+    {
+      "title": "placeholder.placeholder.spend",
+      "datum": {
+        "title": "datum",
+        "schema": {
+          "$ref": "#/definitions/sundae~1multisig~1MultisigScript"
+        }
+      },
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "compiledCode": "5902c601010029800aba2aba1aba0aab9faab9eaab9dab9a4888888966002646465300130053754003370e90004c024009222598009801001c4c98dd7180618049baa0048992cc004c0040122646644b30013006300c37540031323298009bac301230130019809000cdd5980900124446644660040040024464b3001300e0018991919800800804112cc00400629422b30013371e6eb8c06c00400e2946266004004603800280b10191bae3018301537540051598009806000c4c8cc004004dd6180c980b1baa0032259800800c528c5660026600a00a6034003133002002301b0018a50405480c22b30013370e9002000c4c8cc004004dd6180c980b1baa0032259800800c52845660026600a00a603400314a3133002002301b001405480c22b30013370e9003000c4c8cdc49bad3019001323300100137586034603600444b30010018a400113322598009980400400144cdc0000a400510014060603600266004004603800280c8c054dd5001456600266e1d200800189919912cc004c03cc05cdd50014566002601e602e6ea8c06cc07000e266e24dd6980d980c1baa002001899b88375a603660306ea80080050164528202c3019001375a6032602c6ea800cc054dd5180c180c980a9baa0058acc004cdc3a40140031323322598009807980b9baa0028acc004c03cc05cdd5180d980e001c4cdc48009bad301b301837540051337100026eb4c06cc060dd5001202c8a50405860320026eb4c064c058dd5001980a9baa30183015375400b13232330010010062259800800c528456600266ebc00cc05cc06c0062946266004004603800280b101919ba548008cc05cc060c054dd500125eb810132026404c8099013202630133754002602a60246ea80186024002602260226022602260226022601a6ea8c04002a2c8058c038004c038c03c004c028dd5002c590081b87480090070c020c024004c020004c00cdd5004452689b2b200201",
+      "hash": "d110548ab5ed759148abbece19b2f8c1a4a7d47529442be94c970202"
+    },
+    {
+      "title": "placeholder.placeholder.else",
+      "redeemer": {
+        "schema": {}
+      },
+      "compiledCode": "5902c601010029800aba2aba1aba0aab9faab9eaab9dab9a4888888966002646465300130053754003370e90004c024009222598009801001c4c98dd7180618049baa0048992cc004c0040122646644b30013006300c37540031323298009bac301230130019809000cdd5980900124446644660040040024464b3001300e0018991919800800804112cc00400629422b30013371e6eb8c06c00400e2946266004004603800280b10191bae3018301537540051598009806000c4c8cc004004dd6180c980b1baa0032259800800c528c5660026600a00a6034003133002002301b0018a50405480c22b30013370e9002000c4c8cc004004dd6180c980b1baa0032259800800c52845660026600a00a603400314a3133002002301b001405480c22b30013370e9003000c4c8cdc49bad3019001323300100137586034603600444b30010018a400113322598009980400400144cdc0000a400510014060603600266004004603800280c8c054dd5001456600266e1d200800189919912cc004c03cc05cdd50014566002601e602e6ea8c06cc07000e266e24dd6980d980c1baa002001899b88375a603660306ea80080050164528202c3019001375a6032602c6ea800cc054dd5180c180c980a9baa0058acc004cdc3a40140031323322598009807980b9baa0028acc004c03cc05cdd5180d980e001c4cdc48009bad301b301837540051337100026eb4c06cc060dd5001202c8a50405860320026eb4c064c058dd5001980a9baa30183015375400b13232330010010062259800800c528456600266ebc00cc05cc06c0062946266004004603800280b101919ba548008cc05cc060c054dd500125eb810132026404c8099013202630133754002602a60246ea80186024002602260226022602260226022601a6ea8c04002a2c8058c038004c038c03c004c028dd5002c590081b87480090070c020c024004c020004c00cdd5004452689b2b200201",
+      "hash": "d110548ab5ed759148abbece19b2f8c1a4a7d47529442be94c970202"
+    }
+  ],
+  "definitions": {
+    "ByteArray": {
+      "dataType": "bytes"
+    },
+    "Data": {
+      "title": "Data",
+      "description": "Any Plutus data."
+    },
+    "Int": {
+      "dataType": "integer"
+    },
+    "List<sundae/multisig/MultisigScript>": {
+      "dataType": "list",
+      "items": {
+        "$ref": "#/definitions/sundae~1multisig~1MultisigScript"
+      }
+    },
+    "sundae/multisig/MultisigScript": {
+      "title": "MultisigScript",
+      "anyOf": [
+        {
+          "title": "Signature",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "key_hash",
+              "$ref": "#/definitions/ByteArray"
+            }
+          ]
+        },
+        {
+          "title": "AllOf",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "title": "scripts",
+              "$ref": "#/definitions/List<sundae~1multisig~1MultisigScript>"
+            }
+          ]
+        },
+        {
+          "title": "AnyOf",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": [
+            {
+              "title": "scripts",
+              "$ref": "#/definitions/List<sundae~1multisig~1MultisigScript>"
+            }
+          ]
+        },
+        {
+          "title": "AtLeast",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": [
+            {
+              "title": "required",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "scripts",
+              "$ref": "#/definitions/List<sundae~1multisig~1MultisigScript>"
+            }
+          ]
+        },
+        {
+          "title": "Before",
+          "dataType": "constructor",
+          "index": 4,
+          "fields": [
+            {
+              "title": "time",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        },
+        {
+          "title": "After",
+          "dataType": "constructor",
+          "index": 5,
+          "fields": [
+            {
+              "title": "time",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        },
+        {
+          "title": "Script",
+          "dataType": "constructor",
+          "index": 6,
+          "fields": [
+            {
+              "title": "script_hash",
+              "$ref": "#/definitions/ByteArray"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,6 +1,7 @@
 # onchain
 
-Write validators in the `validators` folder, and supporting functions in the `lib` folder using `.ak` as a file extension.
+Write validators in the `validators` folder, and supporting functions in the `lib` folder using `.ak` as a file
+extension.
 
 ```aiken
 validator my_first_validator {
@@ -19,6 +20,7 @@ aiken build
 ## Configuring
 
 **aiken.toml**
+
 ```toml
 [config.default]
 network_id = 41

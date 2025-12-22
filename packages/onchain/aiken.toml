@@ -1,13 +1,13 @@
 name = "IndigoProtocol/latest-price-feed"
 version = "0.0.0"
-compiler = "v1.1.19"
+compiler = "v1.1.21"
 plutus = "v3"
 license = "Apache-2.0"
-description = "Aiken contracts for project 'IndigoProtocol/latest-price-feed'"
+description = "Latest price feeds via Orcfax"
 
 [repository]
 user = "IndigoProtocol"
-project = "onchain"
+project = "latest-price-feed"
 platform = "github"
 
 [[dependencies]]

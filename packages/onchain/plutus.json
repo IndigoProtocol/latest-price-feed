@@ -12,6 +12,66 @@
   },
   "validators": [
     {
+      "title": "latest_price_feed.placeholder.mint",
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "parameters": [
+        {
+          "title": "params",
+          "schema": {
+            "$ref": "#/definitions/latest_price_feed~1types~1Params"
+          }
+        }
+      ],
+      "compiledCode": "590244010100229800aba2aba1aab9faab9eaab9dab9a488888966002646465300130053754003370e90004dc3a400530080039804001244444b3001300400589919911919912cc004c05000a2646644b30013371e6eb8c04c00d22103617578008acc004cdc79bae30130014881057072696365008acc004cdc38011bad30140018acc004c03000a2b300132330010013758602e01444b30010018a508acc004cdd7980c180b1baa301800101b8a51899801001180c800a028405d168b2024899b87002480050124590124590124590121bad3012001301400330130038b20243012001375860220066464660020026eacc048c04cc04c010896600200300389919912cc004cdc8803801456600266e3c01c00a20030064049133005005301700440486eb8c044004dd598090009809800a02414bd6f7b630180798078009bae300e300c375400e60166ea800a2b30013003005899194c004566002600c60186ea800626465300130110019bac30113012001980898079baa0039bab30110024888986022002602060206020602060206020601a6ea80122c805a60186ea800e601e0049112cc004c02400a264646644b30013017003803c590151bad3014001375a6028004602800260206ea801a2b3001300800289919194c004dd6980a800cdd6980a801cdd6980a8012444b30013019004804c590170c054004c050004c040dd5003456600266e1d20040028acc004c040dd5003400e2c808a2c807100e201c1807180780098059baa0068b201240243007300800130070013003375400f149a26cac8009",
+      "hash": "7bb65c04d3f07f212c98244608ff9ca7a68b08f29a85a0d9419eb5e8"
+    },
+    {
+      "title": "latest_price_feed.placeholder.spend",
+      "datum": {
+        "title": "datum",
+        "schema": {
+          "$ref": "#/definitions/latest_price_feed~1types~1Datum<Data>"
+        }
+      },
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/latest_price_feed~1types~1Redeemer"
+        }
+      },
+      "parameters": [
+        {
+          "title": "params",
+          "schema": {
+            "$ref": "#/definitions/latest_price_feed~1types~1Params"
+          }
+        }
+      ],
+      "compiledCode": "590244010100229800aba2aba1aab9faab9eaab9dab9a488888966002646465300130053754003370e90004dc3a400530080039804001244444b3001300400589919911919912cc004c05000a2646644b30013371e6eb8c04c00d22103617578008acc004cdc79bae30130014881057072696365008acc004cdc38011bad30140018acc004c03000a2b300132330010013758602e01444b30010018a508acc004cdd7980c180b1baa301800101b8a51899801001180c800a028405d168b2024899b87002480050124590124590124590121bad3012001301400330130038b20243012001375860220066464660020026eacc048c04cc04c010896600200300389919912cc004cdc8803801456600266e3c01c00a20030064049133005005301700440486eb8c044004dd598090009809800a02414bd6f7b630180798078009bae300e300c375400e60166ea800a2b30013003005899194c004566002600c60186ea800626465300130110019bac30113012001980898079baa0039bab30110024888986022002602060206020602060206020601a6ea80122c805a60186ea800e601e0049112cc004c02400a264646644b30013017003803c590151bad3014001375a6028004602800260206ea801a2b3001300800289919194c004dd6980a800cdd6980a801cdd6980a8012444b30013019004804c590170c054004c050004c040dd5003456600266e1d20040028acc004c040dd5003400e2c808a2c807100e201c1807180780098059baa0068b201240243007300800130070013003375400f149a26cac8009",
+      "hash": "7bb65c04d3f07f212c98244608ff9ca7a68b08f29a85a0d9419eb5e8"
+    },
+    {
+      "title": "latest_price_feed.placeholder.else",
+      "redeemer": {
+        "schema": {}
+      },
+      "parameters": [
+        {
+          "title": "params",
+          "schema": {
+            "$ref": "#/definitions/latest_price_feed~1types~1Params"
+          }
+        }
+      ],
+      "compiledCode": "590244010100229800aba2aba1aab9faab9eaab9dab9a488888966002646465300130053754003370e90004dc3a400530080039804001244444b3001300400589919911919912cc004c05000a2646644b30013371e6eb8c04c00d22103617578008acc004cdc79bae30130014881057072696365008acc004cdc38011bad30140018acc004c03000a2b300132330010013758602e01444b30010018a508acc004cdd7980c180b1baa301800101b8a51899801001180c800a028405d168b2024899b87002480050124590124590124590121bad3012001301400330130038b20243012001375860220066464660020026eacc048c04cc04c010896600200300389919912cc004cdc8803801456600266e3c01c00a20030064049133005005301700440486eb8c044004dd598090009809800a02414bd6f7b630180798078009bae300e300c375400e60166ea800a2b30013003005899194c004566002600c60186ea800626465300130110019bac30113012001980898079baa0039bab30110024888986022002602060206020602060206020601a6ea80122c805a60186ea800e601e0049112cc004c02400a264646644b30013017003803c590151bad3014001375a6028004602800260206ea801a2b3001300800289919194c004dd6980a800cdd6980a801cdd6980a8012444b30013019004804c590170c054004c050004c040dd5003456600266e1d20040028acc004c040dd5003400e2c808a2c807100e201c1807180780098059baa0068b201240243007300800130070013003375400f149a26cac8009",
+      "hash": "7bb65c04d3f07f212c98244608ff9ca7a68b08f29a85a0d9419eb5e8"
+    },
+    {
       "title": "placeholder.placeholder.mint",
       "redeemer": {
         "title": "_redeemer",
@@ -64,6 +124,127 @@
       "items": {
         "$ref": "#/definitions/sundae~1multisig~1MultisigScript"
       }
+    },
+    "aiken/crypto/VerificationKeyHash": {
+      "title": "VerificationKeyHash",
+      "dataType": "bytes"
+    },
+    "latest_price_feed/types/Datum<Data>": {
+      "title": "Datum",
+      "description": "Datum\n This definition is in part motivated to coax aiken\n to give us an ameanable cbor.\n The `Aux` fields are referred to as `(created_ats, updater, admin)`",
+      "anyOf": [
+        {
+          "title": "Price",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "$ref": "#/definitions/latest_price_feed~1types~1WrappedInt"
+            },
+            {
+              "$ref": "#/definitions/latest_price_feed~1types~1Timestamp"
+            }
+          ]
+        },
+        {
+          "title": "Aux",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "$ref": "#/definitions/Data"
+            },
+            {
+              "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+            },
+            {
+              "$ref": "#/definitions/sundae~1multisig~1MultisigScript"
+            }
+          ]
+        }
+      ]
+    },
+    "latest_price_feed/types/Params": {
+      "title": "Params",
+      "description": "An `OutputReference` is a unique reference to an output on-chain. The `output_index`\n corresponds to the position in the output list of the transaction (identified by its id)\n that produced that output",
+      "anyOf": [
+        {
+          "title": "OutputReference",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "transaction_id",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "output_index",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "latest_price_feed/types/Redeemer": {
+      "title": "Redeemer",
+      "description": "Redeemer.\n Defer(own_index, aux_index)\n Update(own_index, price_in, price_out)",
+      "anyOf": [
+        {
+          "title": "Defer",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        },
+        {
+          "title": "Update",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        },
+        {
+          "title": "Administer",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": []
+        }
+      ]
+    },
+    "latest_price_feed/types/Timestamp": {
+      "title": "Timestamp",
+      "dataType": "integer"
+    },
+    "latest_price_feed/types/WrappedInt": {
+      "title": "WrappedInt",
+      "anyOf": [
+        {
+          "title": "WrappedInt",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "int",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
     },
     "sundae/multisig/MultisigScript": {
       "title": "MultisigScript",

@@ -4,9 +4,9 @@ This document provides the specification of the kernel, ie "on-chain" component,
 
 ## Context
 
-There are two existing protocols: Indigo and Orcfax. Orcfax is an oracle, and producer of data, while Indigo Protocol is
-a consumer of Data. The objective is to have the data made available from the Orcfax oracle consumed by Indigo Protocol.
-The format output by Orcfax does not match the format required as input for Indigo Protocol. The role of the Latest
+There are two existing protocols: Indigo and Orcfax. Orcfax is an oracle, publisher of data, while Indigo Protocol is
+DeFi app, and a consumer of data. The objective is to have the data published by Orcfax consumable by Indigo Protocol.
+The format of data Orcfax publishes does not match the format required as input for Indigo Protocol. The role of the Latest
 Price Feed application is to resolve this.
 
 ### Orcfax
@@ -149,13 +149,10 @@ aux="aux"
 #### Types
 
 ```aiken
-use sundae/aicone.{MultisigScript}
+use sundae/multisig.{MultisigScript}
 
 /// Posix time in milliseconds, as it appears in validity range for example.
 type Timestamp = Int
-
-/// Verification Key Hash (Hash224<VerificationKey>)
-type Vkh = Int
 
 /// Seed
 type Params = OutputReference
@@ -166,7 +163,7 @@ type Params = OutputReference
 /// The `Aux` fields are referred to as `(created_ats, updater, admin)`
 type Datum<t> {
   Price(WrappedInt, Timestamp)
-  Aux(t, Hash<28>, MultisigScript)
+  Aux(t, VerificationKeyHash, MultisigScript)
 }
 
 type WrappedInt {
@@ -176,21 +173,18 @@ type WrappedInt {
 /// Note that by defining the type as above,
 /// as CBOR `Price` serializes as though it is defined as:
 
-type PriceDatum = {
+type PriceDatum {
   price : WrappedInt
   expire_at : Int,
 }
 
 /// Redeemer.
-/// The index indicates the output index of continuing Price UTXO
+/// Defer(own_index, aux_index)
+/// Update(own_index, price_in, price_out)
 type Redeemer {
-  Defer(Index)
-  Update(UpdateParams),
-  Administer,
-}
-
-type UpdateParams {
-
+  Defer(Int, Int)
+  Update(Int, Int, Int)
+  Administer
 }
 ```
 
@@ -238,18 +232,18 @@ is seeded, the init is unique. As the init is unique so to is the burn.
 - mint.1 : The names are precisely as in tokens.
 - mint.2 : The amounts are either both 1 or both -1.
 - mint.3 : If amounts are 1, then
-  - mint.3.0 : Seed (params) is spend
-  - mint.3.1 : Find Price output with "zero" datum.
-  - mint.3.2 : Find Aux output with "zero" datum.
+    - mint.3.0 : Seed (params) is spend
+    - mint.3.1 : Find Price output with "zero" datum.
+    - mint.3.2 : Find Aux output with "zero" datum.
 
 ##### Spend Purpose
 
-If datum, redeemer are `(Price, Defer{own_index, other_index})`,
+If datum, redeemer are `(Price, Defer(own_index, aux_index)`,
 
 - defer.0 : Find own input from `own_index`. Derive own hash.
-- defer.0 : Find Aux input from `other_index` (via NFT).
+- defer.0 : Find Aux input from `aux_index` (via NFT).
 
-If datum, redeemer are `(Aux, Update{ aux_in, price_in, price_out })`
+If datum, redeemer are `(Aux, Update(own_index, price_in, price_out))`
 
 - update.0 : Find own input from `own_index`. Derive own hash.
 - update.1 : Parse Price in from inputs (starting from index `price_in`)
@@ -268,9 +262,8 @@ If datum, redeemer are `(Aux, Administer)`
 
 All other datum, redeemer pairs fail.
 
-All constraints imposed on the spend of Price are deferred to execution of Aux. In this case, the validator verifies
+All constraints imposed on the spend of Price are deferred to execution of Aux. In these cases, the validator verifies
 that the transaction also spends Aux.
-
 As a consequence, Aux must always verify the outcome of Price, including verifying its non-inclusion where appropriate.
 
 The `Administer` redeemer is used to spend in a burn transaction.

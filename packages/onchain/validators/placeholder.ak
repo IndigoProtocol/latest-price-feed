@@ -1,6 +1,5 @@
 use cardano/assets.{PolicyId}
-use cardano/transaction.{Transaction, OutputReference}
-
+use cardano/transaction.{OutputReference, Transaction}
 use sundae/multisig.{MultisigScript, satisfied}
 
 validator placeholder {
@@ -8,10 +7,18 @@ validator placeholder {
     todo @"mint logic goes here"
   }
 
-  spend(datum: Option<MultisigScript>, _redeemer: Data, _utxo: OutputReference, tx: Transaction) {
+  spend(
+    datum: Option<MultisigScript>,
+    _redeemer: Data,
+    _utxo: OutputReference,
+    tx: Transaction,
+  ) {
     expect Some(datum) = datum
-    let Transaction { validity_range, extra_signatories, withdrawals, .. }  = tx
-    satisfied(datum, extra_signatories, validity_range, withdrawals )
+    let Transaction { validity_range, extra_signatories, withdrawals, .. } = tx
+    satisfied(datum, extra_signatories, validity_range, withdrawals)
   }
 
+  else(_) {
+    fail
+  }
 }

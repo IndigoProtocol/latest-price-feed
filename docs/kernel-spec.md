@@ -6,7 +6,7 @@ This document provides the specification of the kernel, ie "on-chain" component,
 
 There are two existing protocols: Indigo and Orcfax. Orcfax is an oracle, publisher of data, while Indigo Protocol is
 DeFi app, and a consumer of data. The objective is to have the data published by Orcfax consumable by Indigo Protocol.
-The format of data Orcfax publishes does not match the format required as input for Indigo Protocol. The role of the Latest
+The meaning and format of data Orcfax publishes does not match the format required as input for Indigo Protocol. The role of the Latest
 Price Feed application is to resolve this.
 
 ### Orcfax
@@ -42,12 +42,13 @@ pub type Rational {
 
 [Source](https://docs.orcfax.io/consume#coercing-the-body)
 
-Details of steps a validator must take to safely consume a fact statements are given in the documentation linked. These
-include: finding a validity token in the value of the UTXO, verifying the feed id and created at fields.
+Details of steps a validator must take to safely consume a fact statement are given in the documentation linked. These
+include: finding a validity token in the value of the UTXO, verifying the feed ID, and deeming the created at value acceptable.
 
 ### Indigo
 
-The Indigo Protocol consumes price feed data via the datum of a reference input. The reference input is identified by
+The Indigo Protocol expects a price feed to mean "latest price".
+It consumes price feed data via the datum of a reference input. The reference input is identified by
 the presence of an NFT (that can be set arbitrarily). The datum is of the following form
 
 ```aiken
@@ -61,14 +62,14 @@ OnChainDecimal {
 }
 ```
 
-The `price` is expressed as an (albeit nested) int. The effective position of the decimal place is hard-coded in the
+The `price` is expressed as an (albeit wrapped) int. The effective position of the decimal place is hard-coded in the
 validator consuming the data.
 
 ## Requirements
 
 Ultimate goal: Facilitate the consumption by Indigo Protocol of data derived from Orcfax Fact Statements.
 
-Assumptions:
+Design assumptions:
 
 - The application includes a component consumable by the Indigo Protocol. That is, a UTXO at tip with an NFT and datum
   of the prescribed format. We say **update** to refer to a transaction in which newer Orcfax Fact Statments are used to
@@ -88,7 +89,7 @@ Musts:
    a product of two.  
    For example, Orcfax provides, say, `ADA-USD` and `BTC-USD` feed. Then, it must be possible to produce a LPF for
    `ADA-USD`, `USD-ADA`, and `ADA-BTC`.
-1. On init, there is a specified `expiration_bias`, the time from a Fact statement' `created_at` and the resulting
+1. On init, there is a specified `expiration_bias`, the time from a Fact statement's `created_at` and the resulting
    `expiration`. That is, on each update `expiration = created_at + expiration_bias`.
 1. Sanity checks enforced on-chain:
    1. No non-zero output price
@@ -104,9 +105,10 @@ Non-requirements:
 
 The app consists of a single **seeded** validator, hereafter **main**, which can be executed in precisely mint and spend
 purpose. By seeded, we mean that on init some UTXO specified in the validator parameters must be spent, and in doing we
-guarantee uniqueness of the instance's validator (and so also script hash).
+guarantee uniqueness of the instance's validator (and so also script hash), provided the mint value consists of single
+set of dapp NFTs.
 
-In the following "own" refers to belonging to the instances. For example: "own token" refers to a token with hash (aka
+Throughout "own" refers to belonging to the instances. For example: "own token" refers to a token with hash (aka
 policy ID) of the instance; "own address" refers to an address with payment credentials corresponding to the instance
 _etc_. In the present case, it is enforced that own address is unstaked.
 
@@ -118,7 +120,7 @@ An instance, while running, has on-chain state of two UTXOs:
 - Aux - Facilitates the persistence of state on-chain required for the app to function.
 
 Each UTXO can be identified by the presence of an NFT, both own tokens. At any point in time the UTXOs have the same
-address, an own address.
+address, own address.
 
 ### Lifecycle
 
@@ -128,7 +130,7 @@ NFTs.
 An instance runs in a singular stage for its lifecycle. This stage is a fixed point under the two transactions.
 
 1. Update: the Price and Aux are both spent together with Orcfax Fact Statement(s) as reference inputs.
-1. Administer: the Price is spent (Aux is not).
+1. Administer: the Aux is spent; the Price is not spent.
 
 There is one end of life transaction, a burn. In a burn, the Price and Aux are spent, and NFTs burnt. This is included
 for tidying up, and can be disabled in production if desired.
@@ -188,6 +190,13 @@ type Redeemer {
 }
 ```
 
+#### Env
+
+TODO.
+
+At present there is no declaration of feed ID(s), or Price Align.
+Doing this at the env level is sufficiently convenient.
+
 #### Logic
 
 ##### IO
@@ -195,16 +204,13 @@ type Redeemer {
 Transactions are constrained in part by the conditions of own inputs and outputs. We specify the logic for own inputs
 and outputs here.
 
-An Aux Input:
+An Aux input:
 
 - ai.0: Value contains aux NFT.
 
-A Price Output:
+A Price input:
 
-- po.0: Address is own address
-- po.1: Value is Ada and price NFT.
-- po.2: Datum is inlined `Price`
-- po.3: Script ref is none.
+- pi.0: Value contains price NFT.
 
 An Aux Output:
 
@@ -213,11 +219,20 @@ An Aux Output:
 - ao.2: Datum is inlined `Aux`
 - ao.3: Script ref is none.
 
-We make accommodation for inputs being lexicographically ordered (and so difficult to know indicies precisely prior to
-transaction balancing), while utilizing that output order can be specified with relative ease. The term "input from"
-indicates that the index of the input is "this or after this". This makes it easier to build valid transactions, where
+A Price output:
+
+- po.0: Address is own address
+- po.1: Value is Ada and price NFT.
+- po.2: Datum is inlined `Price`
+- po.3: Script ref is none.
+
+We make accommodation for the fact that inputs are lexicographically ordered
+and so depending on precise indexes in validation makes transaction building difficult.
+The term "input from" indicates that the index of the input is "this or after this".
+This makes it easier to build valid transactions, where
 the balancing step may insert additional inputs, after setting the redeemer.
 
+We utilise the fact that output order is specified with ease.
 Outputs are expected in the order specified unless stated otherwise.
 
 At init, the datums are set to their "zero value". The Price datum zero is `Price(WrappedInt(0), 0)`. The Aux datum zero
@@ -232,9 +247,13 @@ is seeded, the init is unique. As the init is unique so to is the burn.
 - mint.1 : The names are precisely as in tokens.
 - mint.2 : The amounts are either both 1 or both -1.
 - mint.3 : If amounts are 1, then
-    - mint.3.0 : Seed (params) is spend
-    - mint.3.1 : Find Price output with "zero" datum.
-    - mint.3.2 : Find Aux output with "zero" datum.
+  - mint.3.0 : Seed (params) is spend
+  - mint.3.1 : Find Price output with "zero" datum.
+  - mint.3.2 : Find Aux output with "zero" datum.
+
+Note: To burn tokens the UTXOs in which they exist must be spent.
+In this context, the spending is permissioned, and we do not need
+to check this again in the mint.
 
 ##### Spend Purpose
 
@@ -255,10 +274,10 @@ If datum, redeemer are `(Aux, Update(own_index, price_in, price_out))`
 If datum, redeemer are `(Aux, Administer)`
 
 - admin.0 : `admin` (Aicone) is satisfied.
-- admin.1 : Either:
+- admin.1 : Either
   - admin.1.0 : Continuing output has only modified `updater` and `admin`
-  - admin.1.1 : No `Aux` token is output
-- admin.2 : Own mint is non-empty
+  - admin.1.1 : No `Price` token is output
+- admin.2 : Or own mint is non-empty
 
 All other datum, redeemer pairs fail.
 
@@ -320,15 +339,21 @@ fn single( num : Int, denom : Int, sig : Int ) {
 
 #### Newer
 
-In an update the continuing price must be newer. In a one fact statement case, it is sufficient to verify that
+In an update the continuing price must be newer. In a one Fact Statement case, it is sufficient to verify that
 
 ```aiken
 expect cont_datum == created_at + expiration_bias
 expect cont_datum.expiration > prev_datum.expiration
 ```
 
-In the case of product, then there is a decision as to what the `cont_datum.expiration` should be. The other fact
-statement's `created_at` is recorded in the aux datum. On an update, at least one must be later.
+In the case of product, where there are two Fact Statements, then there is a decision as to what the `cont_datum.expiration` should be.
+The other Fact Statement's `created_at` is recorded in the aux datum. On an update, at least one must be later.
+
+Warning: It is possible to do something a little odd in this case.
+The current design would permit an update that isn't the desireable behaviour.
+Suppose we have a LPF that depends on feeds A and B. Suppose the prev datum and its update datum that are calculated from Fact Statements at
+times `(a0, b0)` and `(a1, b1)` respectively.
+Its possible that `a0 < b1 < b0 < a1`.
 
 TODO :: TBD.
 

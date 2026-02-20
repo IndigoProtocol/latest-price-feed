@@ -11,30 +11,25 @@ pub type Params =
   OutputReference
 
 /// Datum
-/// This definition is in part motivated to coax aiken
-/// to give us an ameanable cbor.
-/// The `Aux` fields are referred to as `(created_ats, updater, admin)`
-pub type Datum<t> {
-  Price(WrappedInt, Timestamp)
-  Aux(t, VerificationKeyHash, MultisigScript)
+/// This definition is in part motivated to coax aiken to give us an ameanable cbor.
+pub type DatumSingle {
+  Price { price: WrappedInt, expire_at: Timestamp }
+  Aux { updater: VerificationKeyHash, admin: MultisigScript }
 }
+
+pub const price_zero = Price(WrappedInt(0), 0)
 
 pub type WrappedInt {
   int: Int,
 }
 
-/// Note that by defining the type as above,
-/// as CBOR `Price` serializes as though it is defined as:
-pub type PriceDatum {
-  price: WrappedInt,
-  expire_at: Int,
+pub type SpendRedeemer {
+  Defer { own_in: Int, aux_in: Int }
+  Update { own_in: Int, price_in: Int, price_out: Int }
+  Administer
 }
 
-/// Redeemer.
-/// Defer(own_index, aux_index)
-/// Update(own_index, price_in, price_out)
-pub type Redeemer {
-  Defer(Int, Int)
-  Update(Int, Int, Int)
-  Administer
+pub type MintRedeemer {
+  aux_out: Int,
+  price_out: Int,
 }

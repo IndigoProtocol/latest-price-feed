@@ -11,6 +11,11 @@ name = "SundaeSwap-finance/aicone"
 version = "main"
 source = "github"
 
+[[requirements]]
+name = "orcfax/orcfax-aiken"
+version = "aiken-v1.1.21"
+source = "github"
+
 [[packages]]
 name = "aiken-lang/stdlib"
 version = "v3.0.0"
@@ -23,5 +28,12 @@ version = "main"
 requirements = []
 source = "github"
 
+[[packages]]
+name = "orcfax/orcfax-aiken"
+version = "aiken-v1.1.21"
+requirements = []
+source = "github"
+
 [etags]
-"SundaeSwap-finance/aicone@main" = [{ secs_since_epoch = 1769699212, nanos_since_epoch = 834447591 }, "3f1dd35a89bc04cd630cfac553706c27fdff94ae9b17113dfea51270495e5fc3"]
+"SundaeSwap-finance/aicone@main" = [{ secs_since_epoch = 1771609450, nanos_since_epoch = 287282313 }, "3f1dd35a89bc04cd630cfac553706c27fdff94ae9b17113dfea51270495e5fc3"]
+"orcfax/orcfax-aiken@aiken-v1.1.21" = [{ secs_since_epoch = 1771609450, nanos_since_epoch = 787228256 }, "5112c8e603e039d13c68a1c9d7063749d8b2cc78e80726ea382813c4e7d45bbc"]

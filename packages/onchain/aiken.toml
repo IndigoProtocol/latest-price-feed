@@ -20,4 +20,7 @@ name = "SundaeSwap-finance/aicone"
 version = "main"
 source = "github"
 
-[config]
+[[dependencies]]
+name = "orcfax/orcfax-aiken"
+version = "aiken-v1.1.21"
+source = "github"

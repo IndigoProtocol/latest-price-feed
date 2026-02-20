@@ -54,7 +54,7 @@ the presence of an NFT (that can be set arbitrarily). The datum is of the follow
 ```aiken
 Datum {
   price: OnChainDecimal,
-  expiration: Int,
+  expire_at: Int,
 }
 
 OnChainDecimal {
@@ -90,7 +90,7 @@ Musts:
    For example, Orcfax provides, say, `ADA-USD` and `BTC-USD` feed. Then, it must be possible to produce a LPF for
    `ADA-USD`, `USD-ADA`, and `ADA-BTC`.
 1. On init, there is a specified `expiration_bias`, the time from a Fact statement's `created_at` and the resulting
-   `expiration`. That is, on each update `expiration = created_at + expiration_bias`.
+   `expire_at`. That is, on each update `expire_at = created_at + expiration_bias`.
 1. Sanity checks enforced on-chain:
    1. No non-zero output price
    1. No non-zero denominator of input
@@ -159,39 +159,53 @@ type Timestamp = Int
 /// Seed
 type Params = OutputReference
 
-/// Datum
-/// This definition is in part motivated to coax aiken
-/// to give us an ameanable cbor.
-/// The `Aux` fields are referred to as `(created_ats, updater, admin)`
-type Datum<t> {
-  Price(WrappedInt, Timestamp)
-  Aux(t, VerificationKeyHash, MultisigScript)
+/// Datum Single
+/// We don't need created at. Inferred from expire_at
+type DatumSingle {
+  Price { price : WrappedInt, expire_at : Timestamp }
+  Aux { updater : VerificationKeyHash, admin : MultisigScript }
+}
+
+/// Datum multi
+/// This definition is in part motivated to coax aiken to give us an ameanable cbor.
+type DatumDouble {
+  Price { price : WrappedInt, expire_at : Timestamp }
+  Aux { created_ats : CreatedAts, updater : VerificationKeyHash, admin : MultisigScript }
+}
+
+CreatedAts {
+    First(Timestamp)
+    Second(Timestamp)
 }
 
 type WrappedInt {
   int : Int,
 }
 
-/// Note that by defining the type as above,
-/// as CBOR `Price` serializes as though it is defined as:
-
-type PriceDatum {
-  price : WrappedInt
-  expire_at : Int,
+type MintRedeemer {
 }
-
 /// Redeemer.
-/// Defer(own_index, aux_index)
-/// Update(own_index, price_in, price_out)
-type Redeemer {
-  Defer(Int, Int)
-  Update(Int, Int, Int)
+type SpendRedeemer {
+  Defer { own_in : Int, aux_in : Int }
+  Update { own_in : Int, price_in : Int, price_out : Int }
   Administer
 }
 ```
 
+Note that by defining the type as above,
+as CBOR `Price` serializes as though it is defined as:
+
+```aiken
+type PriceDatum {
+  price : WrappedInt
+  expire_at : Int,
+}
+```
+
+
 #### Env
 
+We have several types of 
 TODO.
 
 At present there is no declaration of feed ID(s), or Price Align.
@@ -201,77 +215,107 @@ Doing this at the env level is sufficiently convenient.
 
 ##### IO
 
-Transactions are constrained in part by the conditions of own inputs and outputs. We specify the logic for own inputs
-and outputs here.
+Transactions are constrained in part by the conditions of own inputs and outputs. 
+We specify the logic for own inputs and outputs here.
 
-An Aux input:
+In all txs, the redeemer indicates the indices of the relevant inputs and outputs.
 
-- ai.0: Value contains aux NFT.
+###### Inputs
 
-A Price input:
+There are several cases why inspecting inputs is requied: 
 
-- pi.0: Value contains price NFT.
+- determining own hash
+- the inclusion or non inclusion of the "other" input
+- extracting the data from the other input
 
-An Aux Output:
+A transaction may do none, one, or more of these.
+By the quirks of Cardano, we have own datum from the execution context directly, 
+and so never need to recover more than one.
 
-- ao.0: Address is own address
-- ao.1: Value is Ada and aux NFT.
-- ao.2: Datum is inlined `Aux`
-- ao.3: Script ref is none.
+An input, Aux or Price, is entirely verified by its validity token. 
+The global behvaiour ensures that a validity token is an NFT, and that it is locked at own address. 
+So to get input datum from own hash: 
 
-A Price output:
+- gid.0 : Pull value and datum
+- gid.1 : Value contains correct NFT
+- gid.2 : Expect datum is inlined datum and return
 
-- po.0: Address is own address
-- po.1: Value is Ada and price NFT.
-- po.2: Datum is inlined `Price`
-- po.3: Script ref is none.
+However, to recognize own token we require knowing `own_hash`. 
+The spend purpose provides to the execution context the output reference. 
+We must use this to establish `own_hash`.
+Get own hash from output reference:  
 
-We make accommodation for the fact that inputs are lexicographically ordered
-and so depending on precise indexes in validation makes transaction building difficult.
-The term "input from" indicates that the index of the input is "this or after this".
-This makes it easier to build valid transactions, where
-the balancing step may insert additional inputs, after setting the redeemer.
+- goh.0 : Output reference matches target
+- goh.1 : Extract script hash from address payment credential
+- goh.2 : Value contains correct NFT
+- goh.3 : Return own hash
 
-We utilise the fact that output order is specified with ease.
-Outputs are expected in the order specified unless stated otherwise.
+There are transactions in which both Price and Aux must be present, or 
+the "other" input must _not_ be present. 
 
-At init, the datums are set to their "zero value". The Price datum zero is `Price(WrappedInt(0), 0)`. The Aux datum zero
-will have `created_ats` set to `0` as applicable.
+In the case of both, we combine the two above.
+That is, from own get other:
+
+- fogo.0 : Get own input and other input from inputs 
+- fogo.1 : Get own hash from own input
+- fogo.2 : Get other datum 
+
+In cases where inclusion of "other" is required, but the data is not, we could speicialize the logic.
+For now we will just ignore the retreived data.
+
+###### Outputs
+
+The context of handling outputs is more uniform that inputs:
+
+- `own_hash` is always available.
+- We always need to retrieve the data.
+
+The two cases are whether we require a single continuing output, or both. 
+In either case, the verification for an output is stricter than an input. 
+We retreive the datum for additional validation steps.
+
+Get output data:
+
+- god.0 : Address is own address
+- god.1 : Value is Ada and correct NFT.
+- god.2 : Script ref is none.
+- god.3 : Datum is inlined data. Return data
 
 ##### Mint Purpose
 
 The constraints enforce that a transaction involving own is either the init, or the burn of an instance. As the script
 is seeded, the init is unique. As the init is unique so to is the burn.
 
+Mint Redeemer is `{price_out, aux_out}`
+
 - mint.0 : Own mint has precisely two entries.
 - mint.1 : The names are precisely as in tokens.
-- mint.2 : The amounts are either both 1 or both -1.
-- mint.3 : If amounts are 1, then
-  - mint.3.0 : Seed (params) is spend
-  - mint.3.1 : Find Price output with "zero" datum.
-  - mint.3.2 : Find Aux output with "zero" datum.
+- mint.2 : The amounts are both 1.
+- mint.3 : Seed (params) is spend
+- mint.4 : Price output with "zero" datum.
+- mint.5 : Aux output with "zero" datum.
 
-Note: To burn tokens the UTXOs in which they exist must be spent.
-In this context, the spending is permissioned, and we do not need
-to check this again in the mint.
+At init, the datums are set to their "zero value". The Price datum zero is `Price(WrappedInt(0), 0)`. The Aux datum zero
+will have `created_ats` set to `0` as applicable.
 
 ##### Spend Purpose
 
-If datum, redeemer are `(Price, Defer(own_index, aux_index)`,
+If datum, spend redeemer are `(Price, Defer{own_in, aux_in}`,
 
-- defer.0 : Find own input from `own_index`. Derive own hash.
-- defer.0 : Find Aux input from `aux_index` (via NFT).
+- defer.0 : `own_in`th input is own input. Derive own hash.
+- defer.0 : `aux_in`th input is Aux input
 
-If datum, redeemer are `(Aux, Update(own_index, price_in, price_out))`
+If datum, spend redeemer are `(Aux, Update{own_in, price_in, price_out})`
 
-- update.0 : Find own input from `own_index`. Derive own hash.
-- update.1 : Parse Price in from inputs (starting from index `price_in`)
-- update.2 : Parse Price out from outputs (precisely `price_out`)
-- update.3 : Parse Aux out (immediately after `price_out`)
-- update.4 : Price out aligns with referenced Fact Statement(s)
-- update.5 : Update is newer
+- update.0 : `own_in`th input is own input. Derive own hash.
+- update.1 : `price_in`th input is Price. 
+- update.2 : `price_out`th output is Price. 
+- update.3 : `price_out + 1`th output is Aux. 
+- update.4 : Recover orcfax reference inputs
+- update.5 : Price out aligns with referenced Fact Statement(s)
+- update.6 : Update is newer
 
-If datum, redeemer are `(Aux, Administer)`
+If datum, spend redeemer are `(Aux, Administer)`
 
 - admin.0 : `admin` (Aicone) is satisfied.
 - admin.1 : Either
@@ -289,27 +333,125 @@ The `Administer` redeemer is used to spend in a burn transaction.
 
 #### Functions
 
-##### Price Align
+##### Value Representation
 
-The expression of price in Orcfax is different to that of Indigo Protocol. We should not expect equality, but instead
-bound the divergence between the two. Orcfax price is of the form `(num, denom)`; the Indigo Protocol price is of the
-form `(sig, exp)` (significand, exponent). Note that the `exp` is fixed at compile time. We split the handling in terms
-of the different feed functions: single, reciprocal, product.
+The expression of price in Orcfax is different to that of Indigo Protocol. 
+We should not expect equality, but instead bound the divergence between the two. 
 
-For a single
+- Orcfax representation of value is of the form `(num, denom)` (numerator, denominator). 
+- Indigo Protocol representation of value is of the form `(sig, exp)` (significand, exponent). 
+
+We can easily convert this to rational representation `(sig, 10 ^(-exp))`.
+
+##### Alignment 
+
+We say two (non-zero) numbers $a$ and $b$ are **$\delta$-aligned** if 
+
+$$
+1 - \delta \geq \frac{a}{b} \geq 1 + \delta
+$$
+
+Strictly speaking this is not a symmetric relation in $a$ and $b$, 
+although it is upto symmetic upto first order in $\delta$. 
+That is, the above implies
+
+$$
+1 - \delta + o(\delta) \geq \frac{b}{a} \geq 1 + \delta + o(\delta) 
+$$
+
+In a validator we can only handle integers.
+We introduce precision $p$ and threshold $\epsilon$ for the role of $\delta$.
+Let $a = \frac{a_n}{a_d}$, and $b = \frac{b_n}{b_d}$, then
+
+$$
+\frac{p - \epsilon}{p} \geq \frac{a_d * b_d}{a_d * b_n} \geq \frac{p + \epsilon}{p}
+$$
+
+Flattening this, and encoding as an aiken function results in the following: 
 
 ```aiken
-fn single( num : Int, denom : Int, sig : Int ) {
-    let orcfax = num * pow(10, exp)
-    let indigo = sig * denom
-    (orcfax - threshold < indigo && indigo < orcfax + threshold)
+pub fn is_aligned(a_n : Int, a_d : Int, b_n: Int, b_d: Int, epsilon: Int, precision: Int) {
+  let x = a_n * b_d * precision
+  let y = a_d * b_n
+  let lb = (precision - epsilon) * y
+  let ub = (precision + epsilon) * y
+  lb <= x && x <= ub
 }
 ```
+
+#### Specialization
+
+The `exp` is fixed in the Indigo consumer of the data. 
+In particular it is fixed at compile time of LPF main validator.
+We assume that it is non-positive.
+We may also fix the desired precision and epsilon at compile time. 
+
+We can specialize our `is_aligned` function to both simplify and optimize logic.
+
+```aiken
+// ./env/example.ak
+pub const exp : Int = ...
+pub const epsilon : Int = ... 
+pub const precision : Int = ... 
+```
+
+Then: 
+
+```aiken
+use env
+
+const scale : Int = math.pow(10, -env.exp) 
+const lb = env.precision - env.epsilon
+const ub = env.precision + env.epsilon
+
+pub fn is_aligned(num : Int, denom : Int, sig: Int,) {
+  let x = num * scale * precision
+  let y = denom * sig
+  lb * y <= x && x <= ub * y
+}
+```
+
+#### Conversion 
+
+Let's say that an Indigo value represents the price pair A-B. 
+Orcfax may have a data feed representing the same price pair A-B.
+However, it may require additional computation steps.
+We support the possibility that Orcfax provides feeds: 
+
+- A-B
+- B-A
+- A-C, C-B
+- C-A, C-B
+- A-C. B-C
+- C-A, B-C
+
+We lean into this for naming.
+
+
+
+
+
+
+The exponent may be positive and negative.
+Let `scale = pow(10, exp)` and if `n < 0` then `neg_scale = pow(10, -exp)`. 
+
+```aiken
+fn verify_ab( num : Int, denom : Int, sig : Int ) {
+    let diff  = num * scale - sig * denom
+    - threshold < diff && diff < threshold
+}
+
+fn verify_ab_neg( num : Int, denom : Int, sig : Int ) {
+    let diff  = num - sig * denom * neg_scale
+    - threshold < diff && diff < threshold
+}
+```
+
 
 For a reciprocal
 
 ```aiken
-fn reciprocal( num : Int, denom : Int, sig : Int ) {
+fn verify_ba( num : Int, denom : Int, sig : Int ) {
     single(denom, num, sig)
 }
 ```
@@ -342,11 +484,11 @@ fn single( num : Int, denom : Int, sig : Int ) {
 In an update the continuing price must be newer. In a one Fact Statement case, it is sufficient to verify that
 
 ```aiken
-expect cont_datum == created_at + expiration_bias
-expect cont_datum.expiration > prev_datum.expiration
+expect cont_datum.expirte_at == created_at + expiration_bias
+expect cont_datum.expire_at > prev_datum.expire_at
 ```
 
-In the case of product, where there are two Fact Statements, then there is a decision as to what the `cont_datum.expiration` should be.
+In the case of product, where there are two Fact Statements, then there is a decision as to what the `cont_datum.expire_at` should be.
 The other Fact Statement's `created_at` is recorded in the aux datum. On an update, at least one must be later.
 
 Warning: It is possible to do something a little odd in this case.

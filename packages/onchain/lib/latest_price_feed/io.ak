@@ -94,15 +94,15 @@ pub fn get_output_data(
   output: Output,
 ) -> Data {
   let Output { address, value, datum, reference_script } = output
-  trace @"god.0" : @"Address is own address"
+  trace @"god.0": @"Address is own address"
   expect Address(Script(own_hash), None) == address
-  trace @"god.1" : @"Value is Ada and correct NFT."
+  trace @"god.1": @"Value is Ada and correct NFT."
   expect
     value
       |> assets.match([Pair(own_hash, [Pair(name, 1)])], fn(_, _) { True })
-  trace @"god.2" : @"Script ref is none."
+  trace @"god.2": @"Script ref is none."
   expect reference_script == None
-  trace @"god.3" : @"Datum is inlined data. Return data"
+  trace @"god.3": @"Datum is inlined data. Return data"
   expect InlineDatum(datum) = datum
   datum
 }
